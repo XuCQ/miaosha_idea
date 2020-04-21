@@ -6,7 +6,7 @@
      - 中间件：RabbitMQ, Redis, Druid
      - 后端:SpringBoot, JSR303, MyBatis
    - 架构模型设计图（设计来源：[Yrion](https://www.cnblogs.com/wyq178/)）
-     - ![img](README.assets/1066538-20191218003313069-325957542.png)
+     - ![img](../README.assets/1066538-20191218003313069-325957542.png)
 
 2. 进度
    1. V1.0
