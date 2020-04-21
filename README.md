@@ -14,6 +14,11 @@
       - 用户登录和分布式Session
    2. V1.1
       - 基础秒杀功能实现
+   3. V1.2
+      - 生成模拟用户数据
+      - 压测
+        - 秒杀模块压测：压测结果 3992 （5000*10）
+        - 问题：超卖
 
 
 
@@ -49,7 +54,30 @@
 1. 两次MD5
    - 用户端：PASS=MD5(明文+固定salt)  防止用户密码明文传递
    - 服务端：PASS=MD5(用户输入（已经计算的了MD5）+随机salt)   防止数据库被控破，MD5可以反推，双保险
+   
 2. 分布式session
    - 用户登陆生成（token），和用户信息一起存储到redis中
    - token放在用户cookie中传递
    - 通过获得cookie中的token读取redis中保存的信息
+   
+3. 压测
+
+   1. JMeter
+
+   2. redis-benchmark
+
+      1. `redis-benchmark -h 127.0.0.1 -p 6379 -c 100 -n 100000`
+
+      2. ```
+           # 结果
+           100000 requests completed in 1.01 seconds
+           100 parallel clients
+           3 bytes payload
+           keep alive: 1
+         
+         99.66% <= 1 milliseconds
+         100.00% <= 1 milliseconds
+         99403.58 requests per second
+         ```
+
+      3. ![image-20200421175900436](README.assets/image-20200421175900436.png)

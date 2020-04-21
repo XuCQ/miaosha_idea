@@ -60,4 +60,12 @@ public class LoginController {
         return Result.success(true);
     }
 
+        @RequestMapping("/test_login")
+    @ResponseBody
+    public Result<String> testLogin(HttpServletResponse response, @Valid LoginVo loginVo) {
+        log.info(loginVo.toString());
+            String token = miaoshaUserService.login(response, loginVo);
+            return Result.success(token);
+    }
+
 }

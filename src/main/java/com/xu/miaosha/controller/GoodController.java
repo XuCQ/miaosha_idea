@@ -48,13 +48,15 @@ public class GoodController {
      * @param paramToken
      * @return
      * @RequestParam(value = COOKI_NAME_TOKEN) String paramToken: 有些手机端不放在cookies中
+     * 压测：2020-04-21 22:12:11 600QPS 5000并发*10
      */
     @RequestMapping("/to_list")
     public String toList(Model model, MiaoshaUser user) {
+
         model.addAttribute("user", user);
         //查询商品列表
         List<GoodsVo> goodsList = goodsService.listGoodsVo();
-        log.info(goodsList.toString());
+//        log.info(user.toString());
         model.addAttribute("goodsList", goodsList);
         return "goods_list";
     }

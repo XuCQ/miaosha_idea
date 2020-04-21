@@ -40,6 +40,14 @@ public class MiaoshaController {
     @Autowired
     MiaoshaService miaoshaService;
 
+    /**
+     * 2020-04-22 02:12:51 压测结果 3992 （5000*10）；
+     * 问题：超卖
+     * @param model
+     * @param user
+     * @param goodsId
+     * @return
+     */
     @RequestMapping("/do_miaosha")
     public String doMiaosha(Model model, MiaoshaUser user, @RequestParam("goodsId") long goodsId) {
         model.addAttribute("user", user);
@@ -59,7 +67,6 @@ public class MiaoshaController {
             model.addAttribute("errmsg", CodeMsg.REPEATE_MIAO_SHA.getMsg());
             return "miaosha_fail";
         }
-        System.out.println("---------do-order_detail");
         // 执行秒杀：减库存，下订单，写入秒杀订单
         OrderInfo orderInfo = miaoshaService.miaosha(user, goods);
         model.addAttribute("orderInfo", orderInfo);
