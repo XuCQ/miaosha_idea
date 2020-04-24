@@ -6,6 +6,7 @@ import com.xu.miaosha.domain.MiaoshaUser;
 import com.xu.miaosha.domain.OrderInfo;
 import com.xu.miaosha.redis.RedisService;
 import com.xu.miaosha.result.CodeMsg;
+import com.xu.miaosha.result.Result;
 import com.xu.miaosha.service.GoodsService;
 import com.xu.miaosha.service.MiaoshaService;
 import com.xu.miaosha.service.MiaoshaUserService;
@@ -17,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * @program: miaosha_idea
@@ -43,34 +46,33 @@ public class MiaoshaController {
     /**
      * 2020-04-22 02:12:51 压测结果 3992 （5000*10）；
      * 问题：超卖
+     *
      * @param model
      * @param user
      * @param goodsId
      * @return
      */
-    @RequestMapping("/do_miaosha")
-    public String doMiaosha(Model model, MiaoshaUser user, @RequestParam("goodsId") long goodsId) {
+    @RequestMapping(value = "/do_miaosha", method = RequestMethod.POST)
+    @ResponseBody
+    public Result<OrderInfo> doMiaosha(Model model, MiaoshaUser user, @RequestParam("goodsId") long goodsId) {
         model.addAttribute("user", user);
         if (user == null) {
-            return "login";
+            return Result.error(CodeMsg.SERVER_ERROR);
         }
         //判断库存
         GoodsVo goods = goodsService.getGoodVoByGoodsId(goodsId);
         int stock = goods.getStockCount();
         if (stock <= 0) {
-            model.addAttribute("errmsg", CodeMsg.MIAO_SHA_OVER.getMsg());
-            return "miaosha_fail";
+            return Result.error(CodeMsg.MIAO_SHA_OVER);
+
         }
         //判断是否秒杀成功
         MiaoshaOrder order = orderService.getMiaoshaOrderByUserIdGoodsId(user.getId(), goodsId);
         if (order != null) {
-            model.addAttribute("errmsg", CodeMsg.REPEATE_MIAO_SHA.getMsg());
-            return "miaosha_fail";
+            return Result.error(CodeMsg.REPEATE_MIAO_SHA);
         }
         // 执行秒杀：减库存，下订单，写入秒杀订单
         OrderInfo orderInfo = miaoshaService.miaosha(user, goods);
-        model.addAttribute("orderInfo", orderInfo);
-        model.addAttribute("goods", goods);
-        return "order_detail";
+        return Result.success(orderInfo);
     }
 }

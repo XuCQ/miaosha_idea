@@ -19,6 +19,7 @@
       - 压测
         - 秒杀模块压测：压测结果 3992 （5000*10）
         - 问题：超卖
+   4. V1.3 缓存优化+页面静态化
 
 
 
@@ -74,10 +75,29 @@
            100 parallel clients
            3 bytes payload
            keep alive: 1
-         
+            
          99.66% <= 1 milliseconds
          100.00% <= 1 milliseconds
          99403.58 requests per second
          ```
 
       3. ![image-20200421175900436](README.assets/image-20200421175900436.png)
+   
+4. 页面优化技术
+
+   1. 页面缓存+URL缓存+对象缓存
+      - 页面缓存/URL缓存
+        - `       WebContext ctx = new WebContext(request, response, request.getServletContext(), request.getLocale(), model.asMap());`
+        - 渲染页面，并存在redis中
+      - 对象缓存
+        - 将对象转成json存在redis中，如user对象
+        - 数据更新时一定要及时修改/删除缓存；
+          - 先删除缓存，再更新数据库
+            - 在高并发下表现不如意，在原子性被破坏时表现优异
+          - **先更新数据库，再删除缓存(`Cache Aside Pattern`设计模式)**
+            - 在高并发下表现优异（出现异常的概率很低），在原子性被破坏时表现不如意
+   2. 页面静态化，前后端分离
+   3. 静态资源优化
+   4. CDN优化
+
+5. Service中严禁调用其他Service的Dao，比如存在缓存不一致的问题

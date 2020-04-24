@@ -74,6 +74,26 @@ public class RedisService {
     }
 
     /**
+     * 删除key
+     *
+     * @param prefix 前缀
+     * @param key    目标key
+     * @param <T>    类型
+     * @return T/F
+     */
+    public <T> boolean delete(KeyPrefix prefix, String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            String realKey = prefix.getPrefix() + key;
+            Long del = jedis.del(realKey);
+            return del > 0;
+        } finally {
+            returnToPool(jedis);
+        }
+    }
+
+    /**
      * 判断key是否存在
      *
      * @param prefix 前缀
@@ -94,9 +114,10 @@ public class RedisService {
 
     /**
      * 增加1，redis.incr
+     *
      * @param prefix 前缀
-     * @param key 自增key
-     * @param <T> 类型
+     * @param key    自增key
+     * @param <T>    类型
      * @return 自增后的值
      */
 
@@ -113,9 +134,10 @@ public class RedisService {
 
     /**
      * 减少1，redis.incr
+     *
      * @param prefix 前缀
-     * @param key 自减key
-     * @param <T> 类型
+     * @param key    自减key
+     * @param <T>    类型
      * @return 自减后的值
      */
     public <T> Long decr(KeyPrefix prefix, String key) {
@@ -131,8 +153,9 @@ public class RedisService {
 
     /**
      * bean转String
+     *
      * @param value 对象
-     * @param <T> 类型
+     * @param <T>   类型
      * @return 字符串
      */
     private <T> String beanToString(T value) {
@@ -154,9 +177,10 @@ public class RedisService {
 
     /**
      * 字符串转bean
-     * @param str redis返回值 {}类型
+     *
+     * @param str   redis返回值 {}类型
      * @param clazz bean 原始类
-     * @param <T> 类型
+     * @param <T>   类型
      * @return T对象
      */
     private <T> T stringToBean(String str, Class<T> clazz) {

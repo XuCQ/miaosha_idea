@@ -32,7 +32,35 @@ public class MiaoshaUserService {
     RedisService redisService;
 
     public MiaoshaUser getById(long id) {
-        return miaoshaUserDao.getById(id);
+        // 取缓存   对象缓存思想
+        MiaoshaUser user = redisService.get(MiaoshaUserKey.getById, "" + id, MiaoshaUser.class);
+        if (user != null) {
+            return user;
+        }
+        // 取数据库
+        user = miaoshaUserDao.getById(id);
+        if (user != null) {
+            redisService.set(MiaoshaUserKey.getById, "" + id, user);
+        }
+        return user;
+    }
+
+    public boolean updatePassword(String token, long id, String formPassword) {
+        // 取user
+        MiaoshaUser user = getById(id);
+        if (user == null) {
+            throw new GlobalExecption(CodeMsg.MOBILE_NOT_EXISTS);
+        }
+        // 更新数据库
+        MiaoshaUser toBeUpdate = new MiaoshaUser();
+        toBeUpdate.setId(id);
+        toBeUpdate.setPassword(MD5Util.formPassToDBPass(formPassword, user.getSalt()));
+        miaoshaUserDao.update(toBeUpdate);
+        // 处理缓存
+        redisService.delete(MiaoshaUserKey.getById, "" + id);
+        user.setPassword(toBeUpdate.getPassword());
+        redisService.set(MiaoshaUserKey.token, token, user);
+        return true;
     }
 
     public String login(HttpServletResponse response, LoginVo loginVo) {
