@@ -16,7 +16,7 @@ public class Result<T> {
         return new Result<T>(data);
     }
 
-    //成功时调用
+    //失败时调用
     public static <T> Result<T> error(CodeMsg cm) {
         return new Result<T>(cm);
     }

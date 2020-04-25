@@ -108,4 +108,11 @@ public class MiaoshaUserService {
         }
         return miaoshaUser;
     }
+
+//    public static void main(String[] args) {
+////        13000000980,56c6873f2e9645b5ae0a3248f2c1083a
+//        RedisService rs =new RedisService();
+//        MiaoshaUser miaoshaUser = rs.get(MiaoshaUserKey.token, "56c6873f2e9645b5ae0a3248f2c1083a", MiaoshaUser.class);
+//        System.out.println(miaoshaUser.toString());
+//    }
 }

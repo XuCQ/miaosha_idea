@@ -7,7 +7,14 @@ package com.xu.miaosha.redis;
  * @create: 2020-04-09 11:49
  **/
 public class OrderKey extends BasePrefix {
+    public OrderKey(String prefix) {
+        super(prefix);
+    }
+
     public OrderKey(int expireSeconds, String prefix) {
         super(expireSeconds, prefix);
     }
+
+
+    public static OrderKey getMiaoshaOrderByUidGid = new OrderKey("moug");
 }

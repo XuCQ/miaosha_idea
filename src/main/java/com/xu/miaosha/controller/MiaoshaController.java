@@ -46,6 +46,8 @@ public class MiaoshaController {
     /**
      * 2020-04-22 02:12:51 压测结果 3992 （5000*10）；
      * 问题：超卖
+     * 2020-04-25 17:38:26 压测结果 5000 （5000*10）；
+     * 解决超卖
      *
      * @param model
      * @param user
@@ -55,9 +57,8 @@ public class MiaoshaController {
     @RequestMapping(value = "/do_miaosha", method = RequestMethod.POST)
     @ResponseBody
     public Result<OrderInfo> doMiaosha(Model model, MiaoshaUser user, @RequestParam("goodsId") long goodsId) {
-        model.addAttribute("user", user);
         if (user == null) {
-            return Result.error(CodeMsg.SERVER_ERROR);
+            return Result.error(CodeMsg.SESSION_ERROR);
         }
         //判断库存
         GoodsVo goods = goodsService.getGoodVoByGoodsId(goodsId);
