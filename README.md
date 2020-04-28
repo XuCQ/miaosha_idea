@@ -22,6 +22,10 @@
    4. V1.3 缓存优化+页面静态化
       - V1.3 .1 解决超卖、秒杀页面优化
         - 使用数据库行锁和唯一索引解决
+   5. V1.4 
+      - 使用redis预加载库存
+      - 引入消息队列，异步处理订单
+      - 内存标记较少redis访问
 
 
 
@@ -49,6 +53,27 @@
    - 环境：springboot
    - 错误原因： MyBatis不允许有重名方法，更改方法名称即可
    - 参考：https://stackoverflow.com/questions/37085803/mybatis-mapped-statements-collection-already-contains-value-for?utm_source=hacpai.com
+   
+6. rabbitmq远程服务器guest访问受限
+
+   - 修改配置文件，参考：https://www.rabbitmq.com/access-control.html
+
+7. rabbitmq - Fanout模式无法收到msg
+
+   - `amqpTemplate.convertAndSend(MQConfig.FANOUT_EXCHANGE, "", msg);`
+   - 主要key位置留空
+
+8. rabbitmq 秒杀队列不存在
+
+   - `org.springframework.amqp.rabbit.listener.BlockingQueueConsumer$DeclarationException: Failed to declare queue`
+
+   - ```java
+     @Bean
+     // 创建队列
+     public Queue queue() {
+         return new Queue(QUEUE, true);
+     }
+     ```
 
 ---
 
@@ -99,7 +124,32 @@
           - **先更新数据库，再删除缓存(`Cache Aside Pattern`设计模式)**
             - 在高并发下表现优异（出现异常的概率很低），在原子性被破坏时表现不如意
    2. 页面静态化，前后端分离
+      - 基于Ajax实现页面动态加载
    3. 静态资源优化
+      - 压缩js，css文件（去除空白之类的）
+      - 整合多个文件，一次请求完成  
+      - 工具：webpack、tengine
    4. CDN优化
+      1. 内容分发网络
+   5. 缓存顺序
+      - 浏览器缓存→CDN缓存→Nigix缓存→页面缓存→对象缓存→数据库
 
 5. Service中严禁调用其他Service的Dao，比如存在缓存不一致的问题
+
+6. Mycat 分库分表
+
+7. 接口优化
+
+   - 方式
+     - redis预减缓存减少数据库访问
+     - 内存标记减少redis访问
+     - 请求先入队缓存，异步下单，增强用户体验
+     - RabbitMQ
+     - Nginx水平扩展
+   - 思路：减少数据库访问
+     - 系统初始化，把商品库存数量加载到redis中
+     - 收到i请求，redis预减库存，库存不足，直接返回，否则进入下一步
+     - 请求入队，立即返回排队中
+     - 请求出队，生成订单，减少库存
+     - 客户端轮询，是否秒杀成功
+   - 

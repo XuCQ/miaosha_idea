@@ -1,6 +1,8 @@
 package com.xu.miaosha.controller;
 
 import com.xu.miaosha.domain.User;
+import com.xu.miaosha.rabbitmq.MQReceiver;
+import com.xu.miaosha.rabbitmq.MQSender;
 import com.xu.miaosha.redis.RedisService;
 import com.xu.miaosha.redis.UserKey;
 import com.xu.miaosha.result.CodeMsg;
@@ -87,7 +89,7 @@ public class SampleController {
     @RequestMapping("/redis/get")
     @ResponseBody
     public Result<User> redisGet() {
-        User user = redisService.get(UserKey.getById,""+1, User.class);
+        User user = redisService.get(UserKey.getById, "" + 1, User.class);
         return Result.success(user);
     }
 
@@ -95,8 +97,41 @@ public class SampleController {
     @ResponseBody
     public Result<Boolean> redisSet() {
         User user = new User(1, "Changqing");
-        Boolean aBoolean = redisService.set(UserKey.getById,""+user.getId(),user);
+        Boolean aBoolean = redisService.set(UserKey.getById, "" + user.getId(), user);
         return Result.success(aBoolean);
     }
+
+//    @Autowired
+//    MQSender mqSender;
+//    @Autowired
+//    MQReceiver mqReceiver;
+
+//    @RequestMapping("/mq")
+//    @ResponseBody
+//    public Result<String> mq() {
+//        mqSender.send("hello mq");
+//        return Result.success("hello");
+//    }
+//
+//    @RequestMapping("/mq/topic")
+//    @ResponseBody
+//    public Result<String> topic() {
+//        mqSender.sendTopic("hello mq");
+//        return Result.success("hello");
+//    }
+//
+//    @RequestMapping("/mq/fanout")
+//    @ResponseBody
+//    public Result<String> fanout() {
+//        mqSender.sendFanout("hello mq");
+//        return Result.success("hello");
+//    }
+//
+//    @RequestMapping("/mq/header")
+//    @ResponseBody
+//    public Result<String> header() {
+//        mqSender.sendHeader("hello mq");
+//        return Result.success("hello");
+//    }
 
 }

@@ -18,7 +18,7 @@ public class ValidatorUtil {
     private static Logger log = LoggerFactory.getLogger(ValidatorUtil.class);
 
     public static boolean isMobile(String src) {
-        log.info(src);
+//        log.info(src);
         if (StringUtils.isEmpty(src)) {
             return false;
         }

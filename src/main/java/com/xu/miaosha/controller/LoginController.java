@@ -35,7 +35,7 @@ public class LoginController {
     @RequestMapping("/do_login")
     @ResponseBody
     public Result<Boolean> doLogin(HttpServletResponse response, @Valid LoginVo loginVo) {
-        log.info(loginVo.toString());
+//        log.info(loginVo.toString());
 //        // 参数校验
 //        String password = loginVo.getPassword();
 //        String mobile = loginVo.getMobile();

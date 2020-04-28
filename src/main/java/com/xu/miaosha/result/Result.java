@@ -16,7 +16,7 @@ public class Result<T> {
         return new Result<T>(data);
     }
 
-    //失败时调用
+    //失败时调用  cm中无data，不存在类型转换的问题
     public static <T> Result<T> error(CodeMsg cm) {
         return new Result<T>(cm);
     }
@@ -28,13 +28,12 @@ public class Result<T> {
 
     }
 
-    private Result(CodeMsg cm)
-    {
+    private Result(CodeMsg cm) {
         if (cm == null) {
             return;
         }
-        this.code=cm.getCode();
-        this.msg=cm.getMsg();
+        this.code = cm.getCode();
+        this.msg = cm.getMsg();
 
 
     }
