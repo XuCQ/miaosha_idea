@@ -26,4 +26,7 @@ public interface GoodsDao {
 
     @Update("UPDATE miaosha_goods SET stock_count=stock_count-1 WHERE goods_id=#{goodsId} and stock_count>0")   // stock_count>0 防止库存产生负数
     public int reduceStock(MiaoshaGoods g);
+
+    @Update("update miaosha_goods set stock_count = #{stockCount} where goods_id = #{goodsId}")
+    public int resetStock(MiaoshaGoods g);
 }

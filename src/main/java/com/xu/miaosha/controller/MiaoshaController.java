@@ -8,6 +8,8 @@ import com.xu.miaosha.domain.OrderInfo;
 import com.xu.miaosha.rabbitmq.MQSender;
 import com.xu.miaosha.rabbitmq.MiaoshaMessage;
 import com.xu.miaosha.redis.GoodsKey;
+import com.xu.miaosha.redis.MiaoshaKey;
+import com.xu.miaosha.redis.OrderKey;
 import com.xu.miaosha.redis.RedisService;
 import com.xu.miaosha.result.CodeMsg;
 import com.xu.miaosha.result.Result;
@@ -78,10 +80,32 @@ public class MiaoshaController implements InitializingBean {
     }
 
     /**
+     * 库存数据还原
+     * @param model
+     * @return
+     */
+    @RequestMapping(value = "/reset", method = RequestMethod.GET)
+    @ResponseBody
+    public Result<Boolean> reset(Model model) {
+        List<GoodsVo> goodsList = goodsService.listGoodsVo();
+        for (GoodsVo goods : goodsList) {
+            goods.setStockCount(10);
+            redisService.set(GoodsKey.getMiaoshaGoodsStock, "" + goods.getId(), 10);
+            localOverMap.put(goods.getId(), false);
+        }
+        redisService.delete(OrderKey.getMiaoshaOrderByUidGid);
+        redisService.delete(MiaoshaKey.isGoodsOver);
+        miaoshaService.reset(goodsList);
+        return Result.success(true);
+    }
+
+    /**
      * 2020-04-22 02:12:51 压测结果 3992 （5000*10）；
      * 问题：超卖
-     * 2020-04-25 17:38:26 压测结果 5000 （5000*10）；
+     * 2020-04-25 17:38:26 压测结果 4000 （5000*10）；
      * 解决超卖
+     * 2020-04-29 16:15:51 压测结果 5000 （5000*10）；
+     * 运用mq
      *
      * @param model
      * @param user
@@ -100,6 +124,11 @@ public class MiaoshaController implements InitializingBean {
         if (over) {
             return Result.error(CodeMsg.MIAO_SHA_OVER);
         }
+        //判断是否秒杀成功
+        MiaoshaOrder order = orderService.getMiaoshaOrderByUserIdGoodsId(user.getId(), goodsId);
+        if (order != null) {
+            return Result.error(CodeMsg.REPEATE_MIAO_SHA);
+        }
         // 预减库存
         long stock = redisService.decr(GoodsKey.getMiaoshaGoodsStock, "" + goodsId);
         // 无库存
@@ -107,12 +136,8 @@ public class MiaoshaController implements InitializingBean {
             localOverMap.put(goodsId, true);
             return Result.error(CodeMsg.MIAO_SHA_OVER);
         }
-        //判断是否秒杀成功
-        MiaoshaOrder order = orderService.getMiaoshaOrderByUserIdGoodsId(user.getId(), goodsId);
-        if (order != null) {
-            return Result.error(CodeMsg.REPEATE_MIAO_SHA);
-        }
-//        log.info("doMiaosha test");
+
+        log.info("doMiaosha test");
         // 入队
         MiaoshaMessage miaoshaMessage = new MiaoshaMessage();
         miaoshaMessage.setUser(user);

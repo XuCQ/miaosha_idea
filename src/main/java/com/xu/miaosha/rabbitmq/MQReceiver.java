@@ -57,6 +57,7 @@ public class MQReceiver {
         }
         // 执行秒杀：减库存，下订单，写入秒杀订单
         miaoshaService.miaosha(user, goods);
+        log.info("秒杀成功" + user.toString());
     }
 
 //    /**

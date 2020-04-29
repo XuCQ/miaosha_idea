@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * @program: miaosha_idea
  * @description: 秒杀事务
@@ -71,5 +73,10 @@ public class MiaoshaService {
 
     private boolean getGoodsOver(long goodsId) {
         return redisService.exists(MiaoshaKey.isGoodsOver, "" + goodsId);
+    }
+
+    public void reset(List<GoodsVo> goodsList) {
+        goodsService.resetStock(goodsList);
+        orderService.deleteOrders();
     }
 }

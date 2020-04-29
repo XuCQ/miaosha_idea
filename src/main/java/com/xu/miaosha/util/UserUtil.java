@@ -20,7 +20,7 @@ import com.xu.miaosha.domain.MiaoshaUser;
 
 /**
  * @program: miaosha_idea
- * @description: 生成随机的用户以及token
+ * @description: 生成测试的用户以及token
  * @author: Xu Changqing
  * @create: 2020-04-22 01:15
  **/
