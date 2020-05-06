@@ -31,6 +31,12 @@
    7. V1.6
       - 接口隐藏
       - 验证码
+      - 接口防刷
+        - AcessLimit注解
+        - 继承HandlerInterceptorAdapter实现访问拦截去
+        - 拦截器集成user解析并存储在ThreadLocal中
+        - 基于redis记录访问次数
+        - 使用response.getOutputStream实现拦截器中返回前端信息
 
 
 
@@ -172,4 +178,4 @@
        - 秒杀收到请求，先验证PathVarivale
    - 数学公式验证码
    - 接口限流防刷
-   - 
+     - 

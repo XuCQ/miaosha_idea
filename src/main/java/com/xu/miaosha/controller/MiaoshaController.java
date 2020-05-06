@@ -1,16 +1,15 @@
 package com.xu.miaosha.controller;
 
+import com.sun.tools.javac.jvm.Code;
 import com.xu.miaosha.Vo.GoodsVo;
+import com.xu.miaosha.access.AccessLimit;
 import com.xu.miaosha.domain.Goods;
 import com.xu.miaosha.domain.MiaoshaOrder;
 import com.xu.miaosha.domain.MiaoshaUser;
 import com.xu.miaosha.domain.OrderInfo;
 import com.xu.miaosha.rabbitmq.MQSender;
 import com.xu.miaosha.rabbitmq.MiaoshaMessage;
-import com.xu.miaosha.redis.GoodsKey;
-import com.xu.miaosha.redis.MiaoshaKey;
-import com.xu.miaosha.redis.OrderKey;
-import com.xu.miaosha.redis.RedisService;
+import com.xu.miaosha.redis.*;
 import com.xu.miaosha.result.CodeMsg;
 import com.xu.miaosha.result.Result;
 import com.xu.miaosha.service.GoodsService;
@@ -30,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -194,20 +194,34 @@ public class MiaoshaController implements InitializingBean {
     /**
      * 获得接口地址--隐藏接口使用
      *
-     * @param model
      * @param user
      * @param goodsId
      * @return
      */
+    @AccessLimit(second = 5, maxCount = 5, needLogin = true)
     @RequestMapping(value = "/path", method = RequestMethod.GET)
     @ResponseBody
-    public Result<String> getMiaoshaPath(HttpServletResponse response, Model model, MiaoshaUser user, @RequestParam("goodsId") long goodsId, @RequestParam("verifyCode") int verifyCode) {
+    public Result<String> getMiaoshaPath(HttpServletRequest request, MiaoshaUser user, @RequestParam("goodsId") long goodsId, @RequestParam("verifyCode") Integer verifyCode) {
         if (user == null) {
             return Result.error(CodeMsg.SESSION_ERROR);
         }
+        if (verifyCode == null) {
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
+        }
+//        // 接口防刷限流：查询访问的次数
+//        String uri = request.getRequestURI();
+//        String key = uri + "_" + user.getId();
+//        Integer count = redisService.get(AccessKey.access, key, Integer.class);
+//        if (count == null) {
+//            redisService.set(AccessKey.access, key, 1);
+//        } else if (count < 5) {
+//            redisService.incr(AccessKey.access, key);
+//        } else {
+//            return Result.error(CodeMsg.ACCESS_LIMIT_REACHED);
+//        }
         // 检查验证码
-        boolean check=miaoshaService.checkVerifyCode(user,goodsId,verifyCode);
-        if(!check){
+        boolean check = miaoshaService.checkVerifyCode(user, goodsId, verifyCode);
+        if (!check) {
             return Result.error(CodeMsg.REQUEST_ILLEGAL);
         }
         String path = miaoshaService.createMiaoshaPath(user, goodsId);
@@ -216,7 +230,7 @@ public class MiaoshaController implements InitializingBean {
 
     @RequestMapping(value = "/verifyCode", method = RequestMethod.GET)
     @ResponseBody
-    public Result<String> getMiaoshaVerifyCode(HttpServletResponse response,  MiaoshaUser user, @RequestParam("goodsId") long goodsId) {
+    public Result<String> getMiaoshaVerifyCode(HttpServletResponse response, MiaoshaUser user, @RequestParam("goodsId") long goodsId) {
         if (user == null) {
             return Result.error(CodeMsg.SESSION_ERROR);
         }
